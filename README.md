@@ -12,4 +12,4 @@ Article: https://robocorp.com/docs/development-guide/google-sheets/interacting-w
 ## Configurations
 
 - Install the dependencies `npm install`
-- Start the webapp `nodemon index.js`
+- Start the webapp `npm start`
