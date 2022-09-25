@@ -29,10 +29,16 @@ app.get('/', async (req, res) => {
   });
 
   // Read rows from spreadsheet
-  const getRows = await googleSheets.spreadsheets.values.get({
+  const getKeyRows = await googleSheets.spreadsheets.values.get({
     auth,
     spreadsheetId,
     range: 'Sheet1!C2:C',
+  });
+
+  const getValueRows = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: 'Sheet1!D2:D',
   });
 
   // Write row(s) to spreadsheet
@@ -48,11 +54,11 @@ app.get('/', async (req, res) => {
 
   // Process information based on Variable Hub needs
   const obj = {};
-  getRows.data.values
+  getKeyRows.data.values
     .flat()
     .filter((value) => value[0])
     .map((value) => Inflector.camelize(value, false))
-    .map((data) => {
+    .map((data, index) => {
       const key = data
         .split('.')
         .map((d, idx) =>
@@ -65,9 +71,14 @@ app.get('/', async (req, res) => {
         .map((d) => d.charAt(0).toLowerCase() + d.slice(1))
         .join('.');
 
+      const value = getValueRows.data.values
+        .flat()
+        .filter((value) => value[0])
+        .map((d) => d.replace(/[^\w\s\{}]/gi, ''));
+
       obj[key] = {
         id: newData,
-        defaultMessage: '',
+        defaultMessage: value[index],
       };
     });
 
